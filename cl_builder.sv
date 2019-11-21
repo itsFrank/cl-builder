@@ -28,27 +28,61 @@ module CL_BUILDER
 
     input logic evict,
 
-    input logic cl_rd,
     input logic data_wr,
     input logic [DATA_WIDTH - 1 : 0 ] data_in,
 
     output logic cl_valid,
-    output logic full,
-    output logic alm_full,
     output logic [CL_WIDTH - 1 : 0 ] out_cl
 );
 
     logic                       build_data_valid    [DATA_PER_CL];
     logic [DATA_WIDTH - 1 : 0 ] build_cl            [DATA_PER_CL];
 
+    logic [DATA_PER_CL - 1 : 0][DATA_WIDTH - 1 : 0 ] out_cl_elements;
+
+    logic build_cl_full;
+    
+    assign build_cl_full = build_data_valid[DATA_PER_CL-1];
+    assign out_cl = out_cl_elements;
     always_ff @(posedge clk) begin
+        cl_valid <= build_cl_full;
+
+        // Data insert
+        if (data_wr) begin
+            build_cl[0]         <= data_in;
+            build_data_valid[0] <= 1;
+        end
+        else if (build_cl_full || evict) begin
+            build_data_valid[0] <= 0;
+        end
+        
+        // Data object chain
         for (int i = 1; i < DATA_PER_CL; i++) begin
-            if (data_wr) begin
-                build_cl[i] <= build_cl[i-1];
+            // Valid bit asserted when previous data is pushed forward and de-asserted when a complete CL is produced
+            if (build_cl_full || evict) begin
+                build_data_valid[i] <= 0;
+            end
+            else if (data_wr) begin
                 build_data_valid[i] <= build_data_valid[i-1];
             end
+
+            if (data_wr) begin
+                build_cl[i] <= build_cl[i-1];
+            end
+        end
+
+        // Move data to out cl
+        for (int i = 0; i < DATA_PER_CL; i++) begin
+            if (build_data_valid[i]) begin
+                out_cl_elements[i] <= build_cl[i]
+            end
             else begin
-                
+                if (EVICTION_POLICY == "ALL_ZEROS") begin
+                    out_cl_elements[i] <= '0;
+                end
+                else if (EVICTION_POLICY == "ALL_ONES") begin
+                    out_cl_elements[i] <= '1;
+                end
             end
         end
     end
