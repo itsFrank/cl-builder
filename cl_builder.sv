@@ -74,7 +74,7 @@ module CL_BUILDER
         // Move data to out cl
         for (int i = 0; i < DATA_PER_CL; i++) begin
             if (build_data_valid[i]) begin
-                out_cl_elements[i] <= build_cl[i]
+                out_cl_elements[i] <= build_cl[i];
             end
             else begin
                 if (EVICTION_POLICY == "ALL_ZEROS") begin

@@ -1,0 +1,10 @@
+- /.git
+- /.vscode
+- /.gitignore
+- rsyncignore.txt
+- /test/work*
+- /test/compile.log
+- /test/run.log
+- /test/.*
+- /test/vsim.wlf
+- /test/alt_lib
