@@ -1,0 +1,11 @@
+$QUARTUS_HOME/eda/sim_lib/altera_primitives.v
+$QUARTUS_HOME/eda/sim_lib/220model.v
+$QUARTUS_HOME/eda/sim_lib/sgate.v
+$QUARTUS_HOME/eda/sim_lib/altera_mf.v
+$QUARTUS_HOME/eda/sim_lib/altera_lnsim.sv
+$QUARTUS_HOME/eda/sim_lib/twentynm_atoms.v
+$QUARTUS_HOME/eda/sim_lib/mentor/twentynm_atoms_ncrypt.v 
+$QUARTUS_HOME/eda/sim_lib/mentor/twentynm_hssi_atoms_ncrypt.v
+$QUARTUS_HOME/eda/sim_lib/twentynm_hssi_atoms.v
+$QUARTUS_HOME/eda/sim_lib/mentor/twentynm_hip_atoms_ncrypt.v
+$QUARTUS_HOME/eda/sim_lib/twentynm_hip_atoms.v

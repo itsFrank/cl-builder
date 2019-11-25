@@ -9,16 +9,16 @@ module __testsuite;
   // These are the unit tests that we
   // want included in this testsuite
   //===================================
-  CL_BUILDER_unit_test CL_BUILDER_ut();
+  cl_builder_unit_test cl_builder_ut();
 
 
   //===================================
   // Build
   //===================================
   function void build();
-    CL_BUILDER_ut.build();
+    cl_builder_ut.build();
     svunit_ts = new(name);
-    svunit_ts.add_testcase(CL_BUILDER_ut.svunit_ut);
+    svunit_ts.add_testcase(cl_builder_ut.svunit_ut);
   endfunction
 
 
@@ -27,7 +27,7 @@ module __testsuite;
   //===================================
   task run();
     svunit_ts.run();
-    CL_BUILDER_ut.run();
+    cl_builder_ut.run();
     svunit_ts.report();
   endtask
 

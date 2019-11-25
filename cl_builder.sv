@@ -13,9 +13,16 @@
     History
         09-18-2018: created
         09-19-2018: added eviction functionality
+        11-24-2019: optimized for better fmax:
+            - Removed stall & busy signals (this is external responsibility now)
+            - Implemented chain-based CL building to alleviate MUX routing
+            - Eliminated full & alm full checks (external responsibility)
+            - For a buffered & insert-safe version look at buffered_cl_builder.sv which attaches a 
+                FIFO to the output and uses the FIFO alm_full signal to indicate an upstream stall
+            - **note: order of data in output cl in reversed from insertion order
 */
 
-module CL_BUILDER
+module cl_builder
 #(
     parameter DATA_WIDTH = 32,
     parameter DATA_PER_CL = 16,
@@ -31,7 +38,7 @@ module CL_BUILDER
     input logic data_wr,
     input logic [DATA_WIDTH - 1 : 0 ] data_in,
 
-    output logic cl_valid,
+    output logic out_cl_valid,
     output logic [CL_WIDTH - 1 : 0 ] out_cl
 );
 
@@ -45,21 +52,21 @@ module CL_BUILDER
     assign build_cl_full = build_data_valid[DATA_PER_CL-1];
     assign out_cl = out_cl_elements;
     always_ff @(posedge clk) begin
-        cl_valid <= build_cl_full;
+        out_cl_valid <= build_cl_full || evict;
 
         // Data insert
         if (data_wr) begin
             build_cl[0]         <= data_in;
             build_data_valid[0] <= 1;
         end
-        else if (build_cl_full || evict) begin
+        else if (build_cl_full || evict || reset) begin
             build_data_valid[0] <= 0;
         end
         
         // Data object chain
         for (int i = 1; i < DATA_PER_CL; i++) begin
             // Valid bit asserted when previous data is pushed forward and de-asserted when a complete CL is produced
-            if (build_cl_full || evict) begin
+            if (build_cl_full || evict || reset) begin
                 build_data_valid[i] <= 0;
             end
             else if (data_wr) begin
@@ -86,7 +93,5 @@ module CL_BUILDER
             end
         end
     end
-
-
 
 endmodule
